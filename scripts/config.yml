@@ -1,0 +1,4 @@
+path: test
+ignore:
+  startswith: .git*,fengxsong/*,pyinotify/.git*
+  endswith: ~,.pyc
