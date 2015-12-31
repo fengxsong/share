@@ -1,4 +1,22 @@
-path: test
-ignore:
-  startswith: .git*,fengxsong/*,pyinotify/.git*
-  endswith: ~,.pyc
+source: test
+
+exclusion:
+    startswith:
+        - .git*
+        - fengxsong/*
+        - pyinotify/.git*
+    endswith:
+        - "~"
+        - .pyc
+
+target:
+    - fengxsong@web01::imgs
+    - fengxsong@web02::imgs
+
+password_file:
+    /etc/rsync.pas
+
+redis:
+    host: localhost
+    port: 6379
+    db: 10
