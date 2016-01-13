@@ -13,8 +13,7 @@ target:
     - fengxsong@web01::imgs
     - fengxsong@web02::imgs
 
-password_file:
-    /etc/rsync.pas
+password_file: /etc/rsync.pas
 
 redis:
     host: localhost

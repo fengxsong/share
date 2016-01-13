@@ -16,8 +16,8 @@ parser.add_option("-c", "--critical",
 (opts, args) = parser.parse_args()
 
 if not opts.warning_per or not opts.critical_per:
-    print "-w and -c must define!"
-    sys.exit()
+    print "Unknow - '-w' and '-c' must define!"
+    sys.exit(3)
 
 with open("/proc/meminfo") as fn:
     mem_info = fn.readlines()
@@ -45,29 +45,29 @@ warning_per = cw(opts.warning_per)
 critical_per = cw(opts.critical_per)
 
 if warning_per < critical_per:
-    print "WARNING percent should't less than CRITICAL percent!"
-    sys.exit(3)
+    print "WARNING - WARNING percent should't less than CRITICAL percent!"
+    sys.exit(1)
 
 origin_mem_size = get_opts_origin_mem_size(opts.origin_mem_size)
 if not origin_mem_size:
-    print "Unknow | -o arg should endswith mb/gb."
+    print "Unknow - '-o' arg should endswith mb/gb."
     sys.exit(3)
 mem_total = get_value('MemTotal')
 
 if mem_total < origin_mem_size * 0.90:
-    print "CRITICAL | Original memory is {:.2f} kB, but now is {:.2f} kB.".format(origin_mem_size, mem_total)
+    print "CRITICAL - Original memory is {:.2f} kB, but now is {:.2f} kB.".format(origin_mem_size, mem_total)
     sys.exit(2)
 
 mem_free = get_value('MemFree')
 perc = mem_free / mem_total
 if perc >= warning_per / 100.00:
-    print "OK | Current memory free is {:.2f} mB, percentage of free is {:.2f}%".format(mem_free / 1024, perc * 100)
+    print "OK - Current memory free is {:.2f} mB, percentage of free is {:.2f}%".format(mem_free / 1024, perc * 100)
     sys.exit(0)
 elif warning_per / 100.00 > perc >= critical_per / 100.00:
-    print "WARNING | Current memory free is {:.2f} mB, percentage of free is {:.2f}%".format(mem_free / 1024, perc * 100)
+    print "WARNING - Current memory free is {:.2f} mB, percentage of free is {:.2f}%".format(mem_free / 1024, perc * 100)
     sys.exit(1)
 elif critical_per / 100.00 > perc:
-    print "CRITICAL | Current memory free is {:.2f} mB, percentage of free is {:.2f}%".format(mem_free / 1024, perc * 100)
+    print "CRITICAL - Current memory free is {:.2f} mB, percentage of free is {:.2f}%".format(mem_free / 1024, perc * 100)
     sys.exit(2)
 else:
     print "Unknow."
