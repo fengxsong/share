@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ escape(handler.settings["site_title"]) }}</title>
+    <link href="{{ static_url("css/bootstrap.min.css") }}" rel="stylesheet">
+    <link href="{{ static_url("css/custom.css") }}" rel="stylesheet"> {% block head %}{% end %}
+</head>
+
+<body>
+
+    <nav class="navbar navbar-default navbar-fixed-top">
+        <div class="container">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="/">{{ escape(handler.settings["site_title"]) }}</a>
+            </div>
+            <div id="navbar" class="navbar-collapse collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    {% if current_user %}
+                    {% if current_user.role == "admin" %}
+                    <li><a href="/auth/create">{{ _("New User") }}</a></li>
+                    {% end %}
+                    <li><a href="/compose">{{ _("New repo") }}</a></li>
+                    <li><a href="/auth/logout?next={{ url_escape(request.uri) }}">{{ _("Sign out") }}</a></li>
+                    {% else %}
+                    <li>{% raw _('<a href="%(url)s">Sign in</a>') % {"url": "/auth/login?next=" + url_escape(request.uri)} %}</li>
+                    {% end %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <div class="container">{% block body %}{% end %}</div>
+</body>
+
+</html>

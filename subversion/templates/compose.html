@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block body %}
+{% if error %}
+<div class="alert alert-warning">
+   <strong>Error: </strong>{{ error }}
+</div>
+{% end %}
+<div class="page-header">
+    <h3>New repo info</h3>
+</div>
+<form class="form-horizontal" action="{{ request.path }}" method="POST">
+    <div class="form-group">
+        <label class="col-sm-2 control-label">{{ _("Title") }}</label>
+        <div class="col-sm-10">
+            <input class="form-control" name="title" id="title" type="text" value="{{ entry.title if entry else "" }}">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-sm-2 control-label">{{ _("Repo") }}</label>
+        <div class="col-sm-10">
+            <input class="form-control" name="repo" id="repo" type="text" value="{{ entry.repo if entry else "" }}">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-sm-2 control-label">{{ _("Username") }}</label>
+        <div class="col-sm-10">
+            <input class="form-control" name="username" id="username" type="text" value="{{ entry.username if entry else "" }}">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-sm-2 control-label">{{ _("Password") }}</label>
+        <div class="col-sm-10">
+            <input class="form-control" name="password" id="password" type="password" value="{{ entry.password if entry else "" }}">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-sm-2 control-label">{{ _("Host") }}</label>
+        <div class="col-sm-10">
+            <input class="form-control" name="host" id="host" type="text" value="{{ entry.host if entry else "" }}">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-sm-2 control-label">{{ _("Dest") }}</label>
+        <div class="col-sm-10">
+            <input class="form-control" name="dest" id="dest" type="text" value="{{ entry.dest if entry else "" }}">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-sm-2 control-label">{{ _("Revision") }}</label>
+        <div class="col-sm-10">
+            <input class="form-control" name="revision" id="revision" type="text" value="{{ entry.revision if entry else "" }}">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-sm-2 control-label">{{ _("Actions") }}</label>
+        <div class="col-sm-10">
+            <button type="submit" class="btn btn-primary">{{ _(" Save changes ") if entry else _("Publish repo ") }}</button>
+            <a href="/"><button type="button" class="btn btn-success">{{ _("Cancel") }}</button></a>
+            <a href="{{ "/delete/" + entry.slug if entry else "/" }}">
+                <button type="button" class="btn btn-danger">{{ _("Delete") }}</button>
+            </a>
+            <a href="{{ "/update/" + entry.slug if entry else "/" }}">
+                <button type="button" class="btn btn-info">{{ _("Update") }}</button>
+            </a>
+        </div>
+    </div>
+    {% if entry %}
+      <input type="hidden" name="id" value="{{ entry.id }}"/>
+    {% end %}
+    {% module xsrf_form_html() %}
+</form>
+{% end %}

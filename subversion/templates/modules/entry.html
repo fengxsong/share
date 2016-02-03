@@ -1,0 +1,10 @@
+<div class="row">
+    <div class="col-xs-6 col-sm-2">{{ entry.title }}</div>
+    <div class="col-xs-6 col-sm-3">{{ entry.repo }}</div>
+    <div class="col-xs-6 col-sm-2">{{ entry.host }} | {{ entry.dest }}</div>
+    <div class="col-xs-6 col-sm-1">{{ entry.revision if entry else " " }}</div>
+    <div class="col-xs-6 col-sm-2">{{ entry.updated }}</div>
+    {% if current_user %}
+    <div class="col-xs-6 col-sm-2"><a href="/compose?id={{ entry.id }}">{{ _("Edit this repo") }}</a></div>
+    {% end %}
+</div>

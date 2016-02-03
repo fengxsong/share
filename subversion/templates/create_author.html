@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block body %}
+{% if error %}
+<div class="alert alert-warning">
+   <strong>Error: </strong>{{ error }}
+</div>
+{% end %}
+
+<form class="form-signin" action="/auth/create" method="POST">
+    <label for="inputEmail" class="sr-only">Email address</label>
+    <input type="email" name="email" id="email" class="form-control" placeholder="Email address" required autofocus>
+    <label for="inputName" class="sr-only">Name</label>
+    <input type="text" name="name" id="name" class="form-control" placeholder="Name" required autofocus>
+    <label for="inputRole" class="sr-only">Name</label>
+    <input type="text" name="role" id="role" class="form-control" placeholder="User Role" required autofocus>
+    <label for="inputPassword" class="sr-only">Password</label>
+    <input type="password" name="password" id="password" class="form-control" placeholder="Password" required>
+    {% module xsrf_form_html() %}
+    <button class="btn btn-lg btn-primary btn-block" type="submit">Submit</button>
+</form>
+{% end %}
