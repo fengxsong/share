@@ -197,7 +197,7 @@ class UpdateHandler(BaseHandler):
         error = None
         if not entry:
             raise tornado.web.HTTPError(404)
-        rets = checkout(host=entry.host, repo=entry.repo, user=entry.username,
+        rets = yield checkout(host=entry.host, repo=entry.repo, user=entry.username,
                         passwd=entry.password, dest=entry.dest)
         for host, result in rets['contacted'].items():
             if not 'failed' in result:
