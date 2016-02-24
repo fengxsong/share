@@ -15,6 +15,7 @@
 ### 开始设置集群
 #### 准备工作
 
+    IPADDR=`hostname --ip-address`
     sudo mkdir -p /etc/redis/
     sudo mkdir -p /data/redis
     sudo cp $cwd/redis-3.0.7/redis.conf /etc/redis/7000.conf
@@ -46,28 +47,28 @@
 
 #### 设置集群
 
-    redis-trib.rb create --replicas 1 127.0.0.1:7000 127.0.0.1:7001 127.0.0.1:7002 127.0.0.1:7003 127.0.0.1:7004 127.0.0.1:7005
+    redis-trib.rb create --replicas 1 $IPADDR:7000 $IPADDR:7001 $IPADDR:7002 $IPADDR:7003 $IPADDR:7004 $IPADDR:7005
     # 按提示输入"yes"
     [OK] All nodes agree about slots configuration.
     >>> Check for open slots...
     >>> Check slots coverage...
     [OK] All 16384 slots covered.
     # now check the cluster
-    redis-trib.rb check 127.0.0.1:7000
+    redis-trib.rb check 192.168.1.240:7000
 
 ### testing
 
-    redis-cli -c -p 7000
-    127.0.0.1:7000> set 20160101 "Fri Jan  1 00:00:00 CST 2016"
+    redis-cli -c -p 7000 -h $IPADDR
+    192.168.1.240:7000> set 20160101 "Fri Jan  1 00:00:00 CST 2016"
     OK
-    127.0.0.1:7000> set 20160102 "Sat Jan  2 00:00:00 CST 2016"
-    -> Redirected to slot [13896] located at 127.0.0.1:7002
+    192.168.1.240:7000> set 20160102 "Sat Jan  2 00:00:00 CST 2016"
+    -> Redirected to slot [13896] located at 192.168.1.240:7002
     OK
-    127.0.0.1:7002> set 20160103 "Sat Jan  3 00:00:00 CST 2016"
-    -> Redirected to slot [9833] located at 127.0.0.1:7001
+    192.168.1.240:7002> set 20160103 "Sat Jan  3 00:00:00 CST 2016"
+    -> Redirected to slot [9833] located at 192.168.1.240:7001
     OK
-    127.0.0.1:7001> get 20160102
-    -> Redirected to slot [13896] located at 127.0.0.1:7000
+    192.168.1.240:7001> get 20160102
+    -> Redirected to slot [13896] located at 192.168.1.240:7000
     "Sat Jan  2 00:00:00 CST 2016"
 
 如上可以看到所有数据是怎么存储
@@ -77,22 +78,22 @@ now we'll test the failover, let's stop one of the master node
     root     11267     1  0 10:35 ?        00:00:10 /usr/local/bin/redis-server *:7000 [cluster]
     kill -s 9 11267
     #check port 7000
-    redis-trib.rb check 127.0.0.1:7000
-    [ERR] Sorry, can't connect to node 127.0.0.1:7000
+    redis-trib.rb check $IPADDR:7000
+    [ERR] Sorry, can't connect to node 192.168.1.240:7000
     #then check port 7001
-    M: 587e4e1ae8cd5d41fb624722ac08ba6370fab9b1 127.0.0.1:7001
+    M: 587e4e1ae8cd5d41fb624722ac08ba6370fab9b1 192.168.1.240:7001
        slots:5461-10922 (5462 slots) master
        1 additional replica(s)
-    M: c4dab37dad48585098ea3af9d8581ce7d0e73d6e 127.0.0.1:7003
+    M: c4dab37dad48585098ea3af9d8581ce7d0e73d6e 192.168.1.240:7003
        slots:0-5460 (5461 slots) master
        0 additional replica(s)
-    S: f9d920af7dfd6dedbcfe3d10ca8cf2b676dfbaf1 127.0.0.1:7004
+    S: f9d920af7dfd6dedbcfe3d10ca8cf2b676dfbaf1 192.168.1.240:7004
        slots: (0 slots) slave
        replicates 587e4e1ae8cd5d41fb624722ac08ba6370fab9b1
-    M: fdfd0d3ff70d8031a584e6ee702e87c8806f2876 127.0.0.1:7002
+    M: fdfd0d3ff70d8031a584e6ee702e87c8806f2876 192.168.1.240:7002
        slots:10923-16383 (5461 slots) master
        1 additional replica(s)
-    S: 3b976d3b7f13bb82c654448fe576ab0598f3078b 127.0.0.1:7005
+    S: 3b976d3b7f13bb82c654448fe576ab0598f3078b 192.168.1.240:7005
        slots: (0 slots) slave
        replicates fdfd0d3ff70d8031a584e6ee702e87c8806f2876
     [OK] All nodes agree about slots configuration.
@@ -103,10 +104,10 @@ now we'll test the failover, let's stop one of the master node
 now we found that node 7003 replaced node 7000 and became a master node, but it doesn't have any slave. `0 additional replica(s)`
 we check some datas stored in before
 
-    redis-cli -c -p 7003
-    127.0.0.1:7003> GET 20160101
+    redis-cli -c -p 7003 -h $IPADDR
+    192.168.1.240:7003> GET 20160101
     "Fri Jan  1 00:00:00 CST 2016"
-    127.0.0.1:7003> SET 20160105 "Fri Jan  5 00:00:00 CST 2016"
+    192.168.1.240:7003> SET 20160105 "Fri Jan  5 00:00:00 CST 2016"
     OK
 
 或者
@@ -121,42 +122,42 @@ we check some datas stored in before
     sudo cp 7000.conf 7006.conf
     sudo sed -i 's/7000/7006/g' 7006.conf
     sudo `which redis-server` /etc/redis/7006.conf
-    redis-trib.rb add-node 127.0.0.1:7006 127.0.0.1:7000
-    redis-trib.rb check 127.0.0.1:7006
+    redis-trib.rb add-node $IPADDR:7006 $IPADDR:7000
+    redis-trib.rb check $IPADDR:7006
     # 7006成为一个master节点, but `slots: (0 slots) master`
     # 要使用它的话需要`reshard`
-    redis-trib.rb reshard 127.0.0.1:7000
+    redis-trib.rb reshard $IPADDR:7000
     # 16384/(the number of master nodes), eg.16384/4=4096, choose `all` means the other nodes are the source. after all thing been done
-    redis-trib.rb check 127.0.0.1:7006
-    M: 4fc3806eaa91775126ebd337e9d8403bbc30486f 127.0.0.1:7006
+    redis-trib.rb check $IPADDR:7006
+    M: 4fc3806eaa91775126ebd337e9d8403bbc30486f 192.168.1.240:7006
        slots:0-1364,5461-6826,10923-12287 (4096 slots) master
        0 additional replica(s)
 
 #### 添加从节点(类似于`添加新节点7006`)
 
     # 自动选择了`7006`作为`master`节点。
-    redis-trib.rb add-node --slave 127.0.0.1:7007 127.0.0.1:7000
+    redis-trib.rb add-node --slave $IPADDR:7007 $IPADDR:7000
     # 指定master的ID。
-    redis-trib.rb add-node --slave --master-id 4fc3806eaa91775126ebd337e9d8403bbc30486f 127.0.0.1:7007 127.0.0.1:7000
+    redis-trib.rb add-node --slave --master-id 4fc3806eaa91775126ebd337e9d8403bbc30486f $IPADDR:7007 $IPADDR:7000
 
 #### 移除节点
 ##### 移除主节点
-    redis-trib.rb del-node 127.0.0.1:7000 4fc3806eaa91775126ebd337e9d8403bbc30486f
+    redis-trib.rb del-node $IPADDR:7000 4fc3806eaa91775126ebd337e9d8403bbc30486f
     # 出错
-    [ERR] Node 127.0.0.1:7000 is not empty! Reshard data away and try again.
+    [ERR] Node 192.168.1.240:7000 is not empty! Reshard data away and try again.
     # 需`reshard`
-    redis-trib.rb reshard 127.0.0.1:7000
+    redis-trib.rb reshard $IPADDR:7000
     # 按提示需要移动多少slot,`slots:0-1364,5461-6826,10923-12287 (4096 slots) master`,所以输入`4096`
     # 移动到哪个node,输入其他主节点ID皆可
     # source node ID,即要删除的节点ID,再输入`done`,之后再次检查可以看到`7006`状态为`slots: (0 slots) master`
     # 再次删除
-    redis-trib.rb del-node 127.0.0.1:7000 4fc3806eaa91775126ebd337e9d8403bbc30486f
+    redis-trib.rb del-node $IPADDR:7000 4fc3806eaa91775126ebd337e9d8403bbc30486f
     # 成功删除并且将它设置为移动到目标节点的从节点。
 
 ##### 移除从节点
 
     # 从节点不涉及到数据迁移所以可以直接删除
-    redis-trib.rb del-node 127.0.0.1:7000 502a92e3cbda8dce25c3ccc16186a09a3861f9d7
+    redis-trib.rb del-node $IPADDR:7000 502a92e3cbda8dce25c3ccc16186a09a3861f9d7
 
 ## HA
 ### HAPROXY
@@ -215,12 +216,12 @@ we check some datas stored in before
         # tcp-check send info\ replication\r\n
         # tcp-check expect string role:master
 
-        server redis_6380 127.0.0.1:7000 maxconn 1024 check inter 1s
-        server redis_6381 127.0.0.1:7001 maxconn 1024 check inter 1s
-        server redis_6382 127.0.0.1:7002 maxconn 1024 check inter 1s
-        server redis_6383 127.0.0.1:7003 maxconn 1024 check inter 1s
-        server redis_6384 127.0.0.1:7004 maxconn 1024 check inter 1s
-        server redis_6385 127.0.0.1:7005 maxconn 1024 check inter 1s
+        server redis_6380 192.168.1.240:7000 maxconn 1024 check inter 1s
+        server redis_6381 192.168.1.240:7001 maxconn 1024 check inter 1s
+        server redis_6382 192.168.1.240:7002 maxconn 1024 check inter 1s
+        server redis_6383 192.168.1.240:7003 maxconn 1024 check inter 1s
+        server redis_6384 192.168.1.240:7004 maxconn 1024 check inter 1s
+        server redis_6385 192.168.1.240:7005 maxconn 1024 check inter 1s
 
 客户端仅需连接6666端口即可。
 
